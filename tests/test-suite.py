@@ -140,6 +140,18 @@ class SuiteTest(BaseTest):
         self.error_expected = self.result is None
 
     def prepare(self):
+        # handle #r extended flag
+        # n must appear first to stay compatible with standard
+        self.regexp_extended = False
+        line1 = self.script[0]
+        if line1.startswith('#r') or line1.startswith('#nr'):
+            self.regexp_extended  = True
+            if line1.startswith('#r'):
+                # remove #r\n
+                self.script[0] = self.script[0][3:]
+            else:
+                # remove r from #nr
+                self.script[0] = self.script[0][0:2] + self.script[0][3:]
 
         # write script
         with open(self.scriptname, 'wt') as f:
@@ -161,13 +173,6 @@ class SuiteTest(BaseTest):
 
         # set autoprint flag (set later on when reading first line of script)
         self.no_autoprint = None
-
-        # handle #r extended flag
-        # n must appear first to stay compatible with standard
-        self.regexp_extended = False
-        line1 = self.script[0]
-        if line1.startswith('#r') or line1.startswith('#nr'):
-            self.regexp_extended  = True
 
         return True
 

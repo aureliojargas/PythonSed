@@ -362,6 +362,7 @@ class Command:
         classes = { '{': Command_block,
                     '}': Command_block_end,
                     ':': Command_label,
+                    '#': Command_comment,
                     'a': Command_a,
                     'b': Command_b,
                     'c': Command_c,
@@ -401,7 +402,7 @@ class Command:
                                             self.str_arguments())
 
     def allow_arguments(self):
-        return self.function in ':btaicwrsy'
+        return self.function in ':btaicwrsy#'
 
     def str_arguments(self):
         return self.args
@@ -470,6 +471,14 @@ class Command_block_end(Command):
         return self.next
 
 class Command_label(Command):
+    def apply(self, sed):
+        return self.next
+
+class Command_comment(Command):
+    def parse_arguments(self, line, i):
+        i, self.args = parse_arguments_comment(line, i)
+        return i
+
     def apply(self, sed):
         return self.next
 
@@ -781,17 +790,13 @@ class Regexp:
 
 
 def pack_script(script):
-    # remove comments
-    # comments following commands are removed during parsing
-    script = [re.sub('^[ \t]*#.*', '', line) for line in script]
-
     # remove trailing spaces
     script = [line.rstrip() for line in script]
 
-    # join lines ending with '\'
+    # join lines ending with '\' (except comments)
     packed = []
     for line in script:
-        if packed and packed[-1].endswith('\\'):
+        if packed and packed[-1].endswith('\\') and not packed[-1].lstrip().startswith('#'):
             packed[-1] = packed[-1][:-1] + '\n' + line
         else:
             packed.append(line)
@@ -875,7 +880,7 @@ def parse_command(line):
     i, address1, address2, negate = parse_addresses(line, 0)
     i, function = parse_function(line, i)
 
-    if function is None or function in '#;':
+    if function is None or function == ';':
         # function is the first char after address. None if not found.
         if address1:
             raise SedException('unterminated command')
@@ -956,8 +961,6 @@ def parse_function(line, i):
 
     if i >= len(line):
         return len(line), None
-    elif line[i] == '#':
-        return len(line), line[i]
     else:
         return i + 1, line[i]
 
@@ -967,6 +970,9 @@ def parse_arguments(line, i):
     i, char = ignore_space(line, i)
     i, tail = parse_tail_of_command(line, i)
     return i, tail
+
+def parse_arguments_comment(line, i):
+    return len(line), line[i:]
 
 def parse_arguments_aic(line, i):
     i, char = ignore_space(line, i)
