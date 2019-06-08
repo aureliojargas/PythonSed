@@ -641,6 +641,8 @@ class Command_s(Command):
 
     def parse_arguments(self, line, i):
         i, self.args = parse_arguments_s(line, i)
+        # save original arguments, because later self.args will change
+        self.args_sed = self.args[:]
         return i
 
     def convert(self, regexp_extended):
