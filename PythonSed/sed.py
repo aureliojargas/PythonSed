@@ -640,6 +640,7 @@ class Command_s(Command):
         self.xregexp = None
 
     def parse_arguments(self, line, i):
+        self.delim = line[i]
         i, self.args = parse_arguments_s(line, i)
         # save original arguments, because later self.args will change
         self.args_sed = self.args[:]
