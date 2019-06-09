@@ -477,6 +477,7 @@ class Command_label(Command):
 class Command_comment(Command):
     def parse_arguments(self, line, i):
         i, self.args = parse_arguments_comment(line, i)
+        print('[args: %s]' % self.args)
         return i
 
     def apply(self, sed):
@@ -637,7 +638,7 @@ class Command_r(Command):
 class Command_s(Command):
     def __init__(self, address1, address2, negate, function):
         Command.__init__(self, address1, address2, negate, function)
-        self.xregexp = None
+        self.xregexp = None  # unused
 
     def parse_arguments(self, line, i):
         self.delim = line[i]
@@ -814,11 +815,13 @@ def parse_script(script):
     try:
         commands = []
         for line in script:
+            print('[line: %s]' % line)
             while len(line) > 0:
                 i, command = parse_command(line)
                 if command is None:
                     pass
                 else:
+                    print('[command: %s]' % command.function)
                     commands.append(command)
                 line = line[i:]
 
