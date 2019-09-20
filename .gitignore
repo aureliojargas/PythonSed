@@ -1,0 +1,5 @@
+.coverage
+PythonSed.egg-info/
+PythonSed/__init__.pyc
+PythonSed/__pycache__/
+PythonSed/sed.pyc
