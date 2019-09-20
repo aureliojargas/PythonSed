@@ -793,8 +793,8 @@ class Regexp:
 
 
 def pack_script(script):
-    # remove trailing spaces
-    script = [line.rstrip() for line in script]
+    # remove line breaks
+    script = [line.rstrip('\r\n') for line in script]
 
     # join lines ending with '\' (except comments)
     packed = []
